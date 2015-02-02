@@ -34,36 +34,36 @@ void merge_and_split_count( struct SortedCount * left, struct SortedCount * righ
   sorted_count->length = left->length + right->length,
   sorted_count->inversion_count = 0;
 
-  sorted_count->sorted = malloc(sorted_count->length * sizeof(int));
+  sorted_count->sorted = malloc( (sorted_count->length + 4) * sizeof(int));
   printf("\nLeft: ");
   print_sorted_count(left, 0);
   printf("\nRight: ");
   print_sorted_count(right, 0);
   while ( left_index < left->length && right_index < right->length ) {
 
-    printf("\n\t%d: %lu (%d) %lu (%d) := %lu", step_count, left->numbers[left_index], left_index, right->numbers[right_index], right_index, sorted_count->inversion_count);
-    if ( left->numbers[left_index] < right->numbers[right_index] ) {
-      sorted_count->sorted[step_count] = left->numbers[left_index];
+    printf("\n\t%d: %lu (%d) %lu (%d) := %lu", step_count, left->sorted[left_index], left_index, right->sorted[right_index], right_index, sorted_count->inversion_count);
+    if ( left->sorted[left_index] < right->sorted[right_index] ) {
+      sorted_count->sorted[step_count] = left->sorted[left_index];
       left_index++;
       if ( left_index == left->length ) {
         // No numbers remaining in left.  Copy over all numbers in right.
         for ( int i = right_index; i < right->length; i++ ) {
-          printf("\n\t\tRight Copy. step_count: %d -- right: %lu (%d)", step_count, right->numbers[i], i);
+          printf("\n\t\tRight Copy. step_count: %d -- right: %lu (%d)", step_count, right->sorted[i], i);
           step_count++;
-          sorted_count->sorted[step_count] = right->numbers[i];
+          sorted_count->sorted[step_count] = right->sorted[i];
         }
       }
     } else {
       sorted_count->inversion_count += left->length - left_index;
-      sorted_count->sorted[step_count] = right->numbers[right_index];
+      sorted_count->sorted[step_count] = right->sorted[right_index];
       if ( right_index < right->length - 1 ) {
         right_index++;
       } else {
         for ( int i = left_index; i < left->length; i++ ) {
           // No numbers remaining in right.  Copy over all numbers in left.
-          printf("\n\t\tLeft Copy. step_count: %d -- left: %lu (%d)", step_count, left->numbers[i], i);
+          printf("\n\t\tLeft Copy. step_count: %d -- left: %lu (%d)", step_count, left->sorted[i], i);
           step_count++;
-          sorted_count->sorted[step_count] = left->numbers[i];
+          sorted_count->sorted[step_count] = left->sorted[i];
         }
         return;
       }
@@ -83,9 +83,14 @@ void count( struct SortedCount * input ){
   } else {
     // Left
     left.length = input->length / 2;
-    left.numbers = malloc(left.length * sizeof(int));
+    left.numbers = malloc( (4 + left.length) * sizeof(int));
+    left.sorted = malloc( (4 + left.length) * sizeof(int));
+    
     left.inversion_count = 0;
-    for ( int i = 0; i < left.length; i++ ) { left.numbers[i] = input->numbers[i]; }
+    for ( int i = 0; i < left.length; i++ ) { 
+      left.numbers[i] = input->numbers[i];
+      left.sorted[i] = input->numbers[i];
+    }
     printf("Left Initialized:");
     report_sorted_count(&left);
 
@@ -96,9 +101,13 @@ void count( struct SortedCount * input ){
 
     // Right
     right.length = ( input->length / 2 ) + ( input->length % 2 );
-    right.numbers = malloc(right.length * sizeof(int));
+    right.numbers = malloc( (4 + right.length) * sizeof(int));
+    right.sorted = malloc( (4 + right.length) * sizeof(int));
     right.inversion_count = 0;
-    for ( int i = 0; i < right.length; i++ ) { right.numbers[i] = input->numbers[i + left.length]; }
+    for ( int i = 0; i < right.length; i++ ) {
+      right.numbers[i] = input->numbers[i + left.length]; 
+      right.sorted[i] = right.numbers[i];
+    }
     printf("Right Initialized:");
     report_sorted_count(&right);
     
@@ -138,8 +147,8 @@ int main( int argc, char *argv[] ) {
   }
 
   // Initialize
-  total_split_inversions.numbers = malloc(number_of_numbers * sizeof(int));
-  total_split_inversions.sorted = malloc(number_of_numbers * sizeof(int));
+  total_split_inversions.numbers = malloc( (4 + number_of_numbers) * sizeof(int));
+  total_split_inversions.sorted = malloc( (4 + number_of_numbers) * sizeof(int));
   total_split_inversions.length = number_of_numbers;
   total_split_inversions.inversion_count = 0;
   for ( int i = 0; i < number_of_numbers; i++ ) { total_split_inversions.numbers[i] = all_numbers[i]; }
