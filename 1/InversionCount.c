@@ -72,13 +72,10 @@ struct SortedCount merge_and_split_count_func( struct SortedCount * left, struct
 };
 
 struct SortedCount count( struct SortedCount * input ){
-  struct SortedCount left, *left_ptr;
-  struct SortedCount right, *right_ptr;
+  struct SortedCount left;
+  struct SortedCount right;
   struct SortedCount split;
   struct SortedCount basecase;
-
-  *left_ptr = left;
-  *right_ptr = right;
 
   if ( input->length == 1 ) {
     basecase.inversion_count = 0;
@@ -115,7 +112,7 @@ struct SortedCount count( struct SortedCount * input ){
 
     // Split
     printf("Splitting");
-    split = merge_and_split_count_func( left_ptr, right_ptr );
+    split = merge_and_split_count_func( &left, &right );
     report_sorted_count(&split);
 
     // Free
