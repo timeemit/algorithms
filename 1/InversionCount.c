@@ -17,9 +17,9 @@ void report_sorted_count( struct SortedCount input ) {
   printf("\n\n");
 };
 
-struct SortedCount merge_and_split_count_func( struct SortedCount left, struct SortedCount right ){
+struct SortedCount merge_and_split_count_func( struct SortedCount * left, struct SortedCount * right ){
   struct SortedCount sorted_count = {
-    .length = left.length + right.length,
+    .length = left->length + right->length,
     .inversion_count = 0
   };
   int left_index = 0;
@@ -28,39 +28,39 @@ struct SortedCount merge_and_split_count_func( struct SortedCount left, struct S
 
   sorted_count.numbers = malloc(sorted_count.length * sizeof(int));
   printf("\nLeft: ");
-  print_sorted_count(left);
+  print_sorted_count(*left);
   printf("\nRight: ");
-  print_sorted_count(right);
-  while ( left_index < left.length && right_index < right.length ) {
+  print_sorted_count(*right);
+  while ( left_index < left->length && right_index < right->length ) {
 
-    printf("\n\t%d: %lu (%d) %lu (%d) := %lu", step_count, left.numbers[left_index], left_index, right.numbers[right_index], right_index, sorted_count.inversion_count);
-    if ( left.numbers[left_index] < right.numbers[right_index] ) {
-      if ( left_index < left.length ) {
-        sorted_count.numbers[step_count] = left.numbers[left_index];
+    printf("\n\t%d: %lu (%d) %lu (%d) := %lu", step_count, left->numbers[left_index], left_index, right->numbers[right_index], right_index, sorted_count.inversion_count);
+    if ( left->numbers[left_index] < right->numbers[right_index] ) {
+      if ( left_index < left->length ) {
+        sorted_count.numbers[step_count] = left->numbers[left_index];
         left_index++;
-        if ( left_index == left.length ) {
+        if ( left_index == left->length ) {
           // No numbers remaining in left.  Copy over all numbers in right.
-          for ( int i = right_index; i < right.length; i++ ) {
-            printf("\n\t\tRight Copy. step_count: %d -- right: %lu (%d)", step_count, right.numbers[i], i);
+          for ( int i = right_index; i < right->length; i++ ) {
+            printf("\n\t\tRight Copy. step_count: %d -- right: %lu (%d)", step_count, right->numbers[i], i);
             step_count++;
-            sorted_count.numbers[step_count] = right.numbers[i];
+            sorted_count.numbers[step_count] = right->numbers[i];
           }
         }
       } else {
-        sorted_count.numbers[step_count] = right.numbers[right_index];
+        sorted_count.numbers[step_count] = right->numbers[right_index];
         right_index++;
       }
     } else {
-      sorted_count.inversion_count += left.length - left_index;
-      sorted_count.numbers[step_count] = right.numbers[right_index];
-      if ( right_index < right.length - 1 ) {
+      sorted_count.inversion_count += left->length - left_index;
+      sorted_count.numbers[step_count] = right->numbers[right_index];
+      if ( right_index < right->length - 1 ) {
         right_index++;
       } else {
-        for ( int i = left_index; i < left.length; i++ ) {
+        for ( int i = left_index; i < left->length; i++ ) {
           // No numbers remaining in right.  Copy over all numbers in left.
-          printf("\n\t\tLeft Copy. step_count: %d -- left: %lu (%d)", step_count, left.numbers[i], i);
+          printf("\n\t\tLeft Copy. step_count: %d -- left: %lu (%d)", step_count, left->numbers[i], i);
           step_count++;
-          sorted_count.numbers[step_count] = left.numbers[i];
+          sorted_count.numbers[step_count] = left->numbers[i];
         }
         return sorted_count;
       }
@@ -72,23 +72,26 @@ struct SortedCount merge_and_split_count_func( struct SortedCount left, struct S
 };
 
 struct SortedCount count( struct SortedCount input ){
-  struct SortedCount left;
-  struct SortedCount right;
+  struct SortedCount left, *left_ptr;
+  struct SortedCount right, *right_ptr;
   struct SortedCount split;
   struct SortedCount basecase;
+
+  *left_ptr = left;
+  *right_ptr = right;
 
   if ( input.length == 1 ) {
     basecase.inversion_count = 0;
     basecase.length = 1;
     basecase.numbers = malloc(1 * sizeof(int));
-    *basecase.numbers[0] = input.numbers[0];
+    basecase.numbers[0] = input.numbers[0];
     return basecase;
   } else {
     // Left
     left.length = input.length / 2;
     left.numbers = malloc(left.length * sizeof(int));
     left.inversion_count = 0;
-    for ( int i = 0; i < left.length; i++ ) { *left.numbers[i] = *input.numbers[i]; }
+    for ( int i = 0; i < left.length; i++ ) { left.numbers[i] = input.numbers[i]; }
     printf("Left Initialized:");
     report_sorted_count(left);
 
@@ -101,7 +104,7 @@ struct SortedCount count( struct SortedCount input ){
     right.length = ( input.length / 3 ) + ( input.length % 2 );
     right.numbers = malloc(right.length * sizeof(int));
     right.inversion_count = 0;
-    for ( int i = 0; i < right.length; i++ ) { *right.numbers[i] = *input.numbers[i + left.length]; }
+    for ( int i = 0; i < right.length; i++ ) { right.numbers[i] = input.numbers[i + left.length]; }
     printf("Right Initialized:");
     report_sorted_count(right);
     
@@ -112,7 +115,7 @@ struct SortedCount count( struct SortedCount input ){
 
     // Split
     printf("Splitting");
-    split = merge_and_split_count_func( left, right);
+    split = merge_and_split_count_func( left_ptr, right_ptr );
     report_sorted_count(split);
 
     // Free
@@ -131,7 +134,6 @@ int main( int argc, char *argv[] ) {
   unsigned long int number_of_numbers = atoi( argv[2] );
   unsigned long int all_numbers[number_of_numbers];
   struct SortedCount total_split_inversions;
-  total_split_inversions.numbers = malloc(100000 * sizeof(int));
 
   read_file = fopen(argv[1], "r");
 
@@ -142,6 +144,7 @@ int main( int argc, char *argv[] ) {
   }
 
   // Initialize
+  total_split_inversions.numbers = malloc(number_of_numbers * sizeof(int));
   total_split_inversions.length = number_of_numbers;
   total_split_inversions.inversion_count = 0;
   for ( int i = 0; i < number_of_numbers; i++ ) { total_split_inversions.numbers[i] = all_numbers[i]; }
