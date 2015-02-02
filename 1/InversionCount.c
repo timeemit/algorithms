@@ -43,20 +43,15 @@ void merge_and_split_count( struct SortedCount * left, struct SortedCount * righ
 
     printf("\n\t%d: %lu (%d) %lu (%d) := %lu", step_count, left->numbers[left_index], left_index, right->numbers[right_index], right_index, sorted_count->inversion_count);
     if ( left->numbers[left_index] < right->numbers[right_index] ) {
-      if ( left_index < left->length ) {
-        sorted_count->sorted[step_count] = left->numbers[left_index];
-        left_index++;
-        if ( left_index == left->length ) {
-          // No numbers remaining in left.  Copy over all numbers in right.
-          for ( int i = right_index; i < right->length; i++ ) {
-            printf("\n\t\tRight Copy. step_count: %d -- right: %lu (%d)", step_count, right->numbers[i], i);
-            step_count++;
-            sorted_count->sorted[step_count] = right->numbers[i];
-          }
+      sorted_count->sorted[step_count] = left->numbers[left_index];
+      left_index++;
+      if ( left_index == left->length ) {
+        // No numbers remaining in left.  Copy over all numbers in right.
+        for ( int i = right_index; i < right->length; i++ ) {
+          printf("\n\t\tRight Copy. step_count: %d -- right: %lu (%d)", step_count, right->numbers[i], i);
+          step_count++;
+          sorted_count->sorted[step_count] = right->numbers[i];
         }
-      } else {
-        sorted_count->sorted[step_count] = right->numbers[right_index];
-        right_index++;
       }
     } else {
       sorted_count->inversion_count += left->length - left_index;
