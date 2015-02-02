@@ -7,12 +7,12 @@ struct SortedCount {
   unsigned long int * numbers;
 };
 
-void print_sorted_count ( struct SortedCount input ) {
-  for ( int i = 0; i < input.length; i++ ) { printf("%lu, ", input.numbers[i]); }
+void print_sorted_count ( struct SortedCount *input ) {
+  for ( int i = 0; i < input->length; i++ ) { printf("%lu, ", input->numbers[i]); }
 }; 
 
-void report_sorted_count( struct SortedCount input ) {
-  printf("\n\tInversion Count: %lu\n\tLength: %lu\n\tNumbers as: ", input.inversion_count, input.length);
+void report_sorted_count( struct SortedCount *input ) {
+  printf("\n\tInversion Count: %lu\n\tLength: %lu\n\tNumbers as: ", input->inversion_count, input->length);
   print_sorted_count(input);
   printf("\n\n");
 };
@@ -28,9 +28,9 @@ struct SortedCount merge_and_split_count_func( struct SortedCount * left, struct
 
   sorted_count.numbers = malloc(sorted_count.length * sizeof(int));
   printf("\nLeft: ");
-  print_sorted_count(*left);
+  print_sorted_count(left);
   printf("\nRight: ");
-  print_sorted_count(*right);
+  print_sorted_count(right);
   while ( left_index < left->length && right_index < right->length ) {
 
     printf("\n\t%d: %lu (%d) %lu (%d) := %lu", step_count, left->numbers[left_index], left_index, right->numbers[right_index], right_index, sorted_count.inversion_count);
@@ -71,7 +71,7 @@ struct SortedCount merge_and_split_count_func( struct SortedCount * left, struct
   return sorted_count;
 };
 
-struct SortedCount count( struct SortedCount input ){
+struct SortedCount count( struct SortedCount * input ){
   struct SortedCount left, *left_ptr;
   struct SortedCount right, *right_ptr;
   struct SortedCount split;
@@ -80,43 +80,43 @@ struct SortedCount count( struct SortedCount input ){
   *left_ptr = left;
   *right_ptr = right;
 
-  if ( input.length == 1 ) {
+  if ( input->length == 1 ) {
     basecase.inversion_count = 0;
     basecase.length = 1;
     basecase.numbers = malloc(1 * sizeof(int));
-    basecase.numbers[0] = input.numbers[0];
+    basecase.numbers[0] = input->numbers[0];
     return basecase;
   } else {
     // Left
-    left.length = input.length / 2;
+    left.length = input->length / 2;
     left.numbers = malloc(left.length * sizeof(int));
     left.inversion_count = 0;
-    for ( int i = 0; i < left.length; i++ ) { left.numbers[i] = input.numbers[i]; }
+    for ( int i = 0; i < left.length; i++ ) { left.numbers[i] = input->numbers[i]; }
     printf("Left Initialized:");
-    report_sorted_count(left);
+    report_sorted_count(&left);
 
     // Count Left
-    left = count( left );
+    left = count( &left );
     printf("Left Reports");
-    report_sorted_count(left);
+    report_sorted_count(&left);
 
     // Right
-    right.length = ( input.length / 3 ) + ( input.length % 2 );
+    right.length = ( input->length / 3 ) + ( input->length % 2 );
     right.numbers = malloc(right.length * sizeof(int));
     right.inversion_count = 0;
-    for ( int i = 0; i < right.length; i++ ) { right.numbers[i] = input.numbers[i + left.length]; }
+    for ( int i = 0; i < right.length; i++ ) { right.numbers[i] = input->numbers[i + left.length]; }
     printf("Right Initialized:");
-    report_sorted_count(right);
+    report_sorted_count(&right);
     
     // Count Right
-    right = count( right );
+    right = count( &right );
     printf("Right Reports");
-    report_sorted_count(right);
+    report_sorted_count(&right);
 
     // Split
     printf("Splitting");
     split = merge_and_split_count_func( left_ptr, right_ptr );
-    report_sorted_count(split);
+    report_sorted_count(&split);
 
     // Free
     free(left.numbers);
@@ -150,12 +150,12 @@ int main( int argc, char *argv[] ) {
   for ( int i = 0; i < number_of_numbers; i++ ) { total_split_inversions.numbers[i] = all_numbers[i]; }
 
   // Calculate
-  total_split_inversions = count(total_split_inversions);
+  total_split_inversions = count(&total_split_inversions);
 
   // Output
   printf("Count: %lu\n", total_split_inversions.inversion_count);
   printf("Sorted: ");
-  print_sorted_count(total_split_inversions);
+  print_sorted_count(&total_split_inversions);
   
   fclose(read_file);
   return 0;
