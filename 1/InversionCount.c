@@ -84,8 +84,8 @@ void count( struct SortedCount * input ){
   } else {
     // Left
     left.length = input->length / 2;
-    left.numbers = malloc( (4 + left.length) * sizeof(int));
-    left.sorted = malloc( (4 + left.length) * sizeof(int));
+    left.numbers = malloc( left.length * sizeof(unsigned long int));
+    left.sorted = malloc( left.length * sizeof(unsigned long int));
     
     left.inversion_count = 0;
     // for ( int i = 0; i < left.length; i++ ) { 
@@ -99,13 +99,13 @@ void count( struct SortedCount * input ){
 
     // Count Left
     count( &left );
-    printf("Left Reports");
+    // printf("Left Reports");
     report_sorted_count(&left);
 
     // Right
     right.length = ( input->length / 2 ) + ( input->length % 2 );
-    right.numbers = malloc( (4 + right.length) * sizeof(int));
-    right.sorted = malloc( (4 + right.length) * sizeof(int));
+    right.numbers = malloc( right.length * sizeof(unsigned long int));
+    right.sorted = malloc( right.length * sizeof(unsigned long int));
     right.inversion_count = 0;
     // for ( int i = 0; i < right.length; i++ ) {
     //   right.numbers[i] = input->numbers[i + left.length]; 
@@ -152,8 +152,8 @@ int main( int argc, char *argv[] ) {
   }
 
   // Initialize
-  total_split_inversions.numbers = malloc( (4 + number_of_numbers) * sizeof(int));
-  total_split_inversions.sorted = malloc( (4 + number_of_numbers) * sizeof(int));
+  total_split_inversions.numbers = malloc( number_of_numbers * sizeof(unsigned long int));
+  total_split_inversions.sorted = malloc( number_of_numbers * sizeof(unsigned long int));
   total_split_inversions.length = number_of_numbers;
   total_split_inversions.inversion_count = 0;
   for ( int i = 0; i < number_of_numbers; i++ ) { total_split_inversions.numbers[i] = all_numbers[i]; }
