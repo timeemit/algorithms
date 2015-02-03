@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 struct SortedCount {
   unsigned long int inversion_count;
@@ -87,11 +88,13 @@ void count( struct SortedCount * input ){
     left.sorted = malloc( (4 + left.length) * sizeof(int));
     
     left.inversion_count = 0;
-    for ( int i = 0; i < left.length; i++ ) { 
-      left.numbers[i] = input->numbers[i];
-      left.sorted[i] = input->numbers[i];
-    }
-    printf("Left Initialized:");
+    // for ( int i = 0; i < left.length; i++ ) { 
+    //   left.numbers[i] = input->numbers[i];
+    //   left.sorted[i] = input->numbers[i];
+    // }
+    memcpy( left.numbers, input->numbers, left.length * sizeof(unsigned long int));
+    memcpy( left.sorted, input->sorted, left.length * sizeof(unsigned long int));
+    // printf("Left Initialized:");
     report_sorted_count(&left);
 
     // Count Left
@@ -104,11 +107,13 @@ void count( struct SortedCount * input ){
     right.numbers = malloc( (4 + right.length) * sizeof(int));
     right.sorted = malloc( (4 + right.length) * sizeof(int));
     right.inversion_count = 0;
-    for ( int i = 0; i < right.length; i++ ) {
-      right.numbers[i] = input->numbers[i + left.length]; 
-      right.sorted[i] = right.numbers[i];
-    }
-    printf("Right Initialized:");
+    // for ( int i = 0; i < right.length; i++ ) {
+    //   right.numbers[i] = input->numbers[i + left.length]; 
+    //   right.sorted[i] = right.numbers[i];
+    // }
+    memcpy( right.numbers, &input->numbers[left.length], right.length * sizeof(unsigned long int));
+    memcpy( right.sorted, &input->sorted[left.length], right.length * sizeof(unsigned long int));
+    // printf("Right Initialized:");
     report_sorted_count(&right);
     
     // Count Right
